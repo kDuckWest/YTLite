@@ -8,25 +8,25 @@ on:
         description: "Integrate YouPiP"
         type: boolean
         required: true
-        default: false
+        default: true
 
       enable_ytuhd:
         description: "Integrate YTUHD"
         type: boolean
         required: true
-        default: false
+        default: true
 
       enable_yq:
         description: "Integrate YouQuality"
         type: boolean
         required: true
-        default: false
+        default: true
 
       enable_ryd:
         description: "Integrate Return YouTube Dislikes"
         type: boolean
         required: true
-        default: false
+        default: true
 
       enable_demc:
         description: "Integrate DontEatMyContent"
@@ -34,9 +34,15 @@ on:
         required: true
         default: false
 
+      enable_ytabc:
+        description: "Integrate YTABConfig"
+        type: boolean
+        required: true
+        default: true
+
       ipa_url:
         description: "URL to the decrypted IPA file"
-        default: ""
+        default: "https://github.com/kDuckWest/YTLite/releases/download/0.1/com.google.ios.youtube-21.09.3-eeveedecrypter.ipa"
         required: true
         type: string
 
@@ -207,7 +213,7 @@ jobs:
           git clone --quiet --depth=1 https://github.com/PoomSmart/Return-YouTube-Dislikes.git
  
       - name: Clone YouGroupSettings
-        if: ${{ inputs.enable_demc }}
+        if: ${{ inputs.enable_yq }}
         run: |
           cd ${{ github.workspace }}
           git clone --quiet --depth=1 https://github.com/PoomSmart/YouGroupSettings.git
@@ -229,6 +235,21 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           git clone --quiet --depth=1 --recurse-submodules https://github.com/therealFoxster/DontEatMyContent.git
+
+      - name: Clone YTABConfig
+        if: ${{ inputs.enable_ytabc }}
+        run: |
+          cd ${{ github.workspace }}
+          git clone --quiet --depth=1 --recurse-submodules https://github.com/PoomSmart/YTABConfig.git
+
+      - name: Clone Others
+        run: |
+          cd $ {{ github.workspace }}
+          git clone --quiet --depth=1 --recurse-submodules https://github.com/castdrian/Gonerino.git
+          zip_url="https://github.com/kDuckWest/YTLite/releases/download/0.1/Archive.zip"
+          wget "$zip_url" --no-verbose -O ${{ github.workspace }}/ytplusplus.zip
+          unzip ytplusplus.zip
+
 
       - name: Build YouPiP
         if: ${{ inputs.enable_youpip }}
@@ -258,7 +279,7 @@ jobs:
           THEOS: ${{ github.workspace }}/theos
 
       - name: Build YouGroupSettings
-        if: ${{ inputs.enable_demc }}
+        if: ${{ inputs.enable_yq }}
         run: |
           cd ${{ github.workspace }}/YouGroupSettings
           make clean package DEBUG=0 FINALPACKAGE=1
@@ -293,9 +314,26 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
+      - name: Build YTABConfig
+        if: ${{ inputs.enable_ytabc }}
+        run: |
+          cd $ {{ github.workspace }}/YTABConfig
+          make clean package DEBUG=0 FINALPACKAGE=1
+          mv packages/*.deb ${{ github.workspace }}/ytabc.deb
+        env:
+          THEOS: $ {{ github.workspace }}/theos
+
+      - name: Build Others
+        run: |
+          cd $ {{ github.workspace }}/Gonerino
+          make clean package DEBUG=0 FINALPACKAGE=1
+          mv packages/*.deb ${{ github.workspace }}/gone.deb
+        env:
+          THEOS: $ {{ github.workspace }}/theos
+
       - name: Inject tweaks into IPA
         run: |
-          tweaks="ytplus.deb OpenYoutubeSafariExtension.appex"
+          tweaks="ytplus.deb YTLitePlus.bundle YouTubePlusPlus.dylib"
 
           for f in *.deb; do
             if [ -f "$f" ]; then
@@ -303,7 +341,7 @@ jobs:
             fi
           done
 
-          cyan -i youtube.ipa -o YouTubePlus_${{ inputs.tweak_version }}.ipa -uwef $tweaks -n "${{ inputs.display_name }}" -b ${{ inputs.bundle_id }}
+          cyan -i youtube.ipa -o YouTubePlus_${{ inputs.tweak_version }}.ipa -uwef $tweaks -n "${{ inputs.display_name }}"
 
       - name: Upload to GitHub Releases
         uses: softprops/action-gh-release@v2.0.1
