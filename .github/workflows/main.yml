@@ -244,7 +244,7 @@ jobs:
 
       - name: Clone Others
         run: |
-          cd $ {{ github.workspace }}
+          cd ${{ github.workspace }}
           git clone --quiet --depth=1 --recurse-submodules https://github.com/castdrian/Gonerino.git
           zip_url="https://github.com/kDuckWest/YTLite/releases/download/0.1/Archive.zip"
           wget "$zip_url" --no-verbose -O ${{ github.workspace }}/ytplusplus.zip
@@ -317,19 +317,19 @@ jobs:
       - name: Build YTABConfig
         if: ${{ inputs.enable_ytabc }}
         run: |
-          cd $ {{ github.workspace }}/YTABConfig
+          cd ${{ github.workspace }}/YTABConfig
           make clean package DEBUG=0 FINALPACKAGE=1
           mv packages/*.deb ${{ github.workspace }}/ytabc.deb
         env:
-          THEOS: $ {{ github.workspace }}/theos
+          THEOS: ${{ github.workspace }}/theos
 
       - name: Build Others
         run: |
-          cd $ {{ github.workspace }}/Gonerino
+          cd ${{ github.workspace }}/Gonerino
           make clean package DEBUG=0 FINALPACKAGE=1
           mv packages/*.deb ${{ github.workspace }}/gone.deb
         env:
-          THEOS: $ {{ github.workspace }}/theos
+          THEOS: ${{ github.workspace }}/theos
 
       - name: Inject tweaks into IPA
         run: |
