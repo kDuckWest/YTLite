@@ -42,7 +42,7 @@ on:
 
       ipa_url:
         description: "URL to the decrypted IPA file"
-        default: "https://github.com/kDuckWest/YTLite/releases/download/0.1/com.google.ios.youtube-21.09.3-eeveedecrypter.ipa"
+        default: "https://github.com/kDuckWest/YTLite/releases/download/0.1/com.google.ios.youtube_20.42.3.ipa"
         required: true
         type: string
 
@@ -151,6 +151,7 @@ jobs:
           wget "$deb_url" --no-verbose -O ${{ github.workspace }}/ytplus.deb
 
       - name: Clone Open in YouTube (Safari extension)
+        if: false
         run: |
           git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/CokePokes/YoutubeExtensions/
           cd YoutubeExtensions
